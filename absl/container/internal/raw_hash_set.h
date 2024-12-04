@@ -1924,7 +1924,7 @@ HashtablezInfoHandle SampleHashtablezInfo(size_t sizeof_slot, size_t sizeof_key,
   // In SOO, we sample on the first insertion so if this is an empty SOO case
   // (e.g. when reserve is called), then we still need to sample.
   if (kSooEnabled && was_soo && c.size() == 0) {
-    return Sample(sizeof_slot, sizeof_key, sizeof_value, SooCapacity());
+    return Sample(sizeof_slot, sizeof_key, sizeof_value, (int16_t)SooCapacity());
   }
   // For non-SOO cases, we sample whenever the capacity is increasing from zero
   // to non-zero.
@@ -3525,7 +3525,7 @@ class raw_hash_set {
     assert(is_soo());
     if (!ShouldSampleHashtablezInfo<CharAlloc>()) return HashtablezInfoHandle{};
     return Sample(sizeof(slot_type), sizeof(key_type), sizeof(value_type),
-                  SooCapacity());
+                  (int16_t)SooCapacity());
   }
 
   inline void destroy_slots() {

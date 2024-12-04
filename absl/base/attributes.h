@@ -559,7 +559,7 @@
 #undef ABSL_ATTRIBUTE_UNUSED
 #define ABSL_ATTRIBUTE_UNUSED __attribute__((__unused__))
 #else
-#define ABSL_ATTRIBUTE_UNUSED
+#define ABSL_ATTRIBUTE_UNUSED [[maybe_unused]]
 #endif
 
 // ABSL_ATTRIBUTE_INITIAL_EXEC

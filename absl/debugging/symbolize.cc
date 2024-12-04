@@ -14,7 +14,7 @@
 
 #include "absl/debugging/symbolize.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(NDEBUG)
 #include <winapifamily.h>
 #if !(WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)) || \
     WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)

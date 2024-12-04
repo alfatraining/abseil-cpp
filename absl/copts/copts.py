@@ -118,10 +118,6 @@ MSVC_WARNING_FLAGS = [
     "/wd4068",  # unknown pragma
     # qualifier applied to function type has no meaning; ignored
     "/wd4180",
-    # conversion from 'type1' to 'type2', possible loss of data
-    "/wd4244",
-    # conversion from 'size_t' to 'type', possible loss of data
-    "/wd4267",
     # The decorated name was longer than the compiler limit
     "/wd4503",
     # forcing value to bool 'true' or 'false' (performance warning)

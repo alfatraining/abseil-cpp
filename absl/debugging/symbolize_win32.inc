@@ -35,15 +35,15 @@ ABSL_NAMESPACE_BEGIN
 
 static HANDLE process = NULL;
 
-void InitializeSymbolizer(const char*) {
-  if (process != nullptr) {
-    return;
-  }
+namespace {
+void InitializeSymbolizerImpl() {
+
   process = GetCurrentProcess();
 
   // Symbols are not loaded until a reference is made requiring the
   // symbols be loaded. This is the fastest, most efficient way to use
   // the symbol handler.
+
   SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_UNDNAME);
   if (!SymInitialize(process, nullptr, true)) {
     // GetLastError() returns a Win32 DWORD, but we assign to
@@ -54,6 +54,36 @@ void InitializeSymbolizer(const char*) {
   }
 }
 
+bool LookupAndInitialize(const void* pc, SYMBOL_INFO* symbol) {
+  auto hProcess = (process != NULL) ? process : GetCurrentProcess();
+  if (SymFromAddr(hProcess, reinterpret_cast<DWORD64>(pc), nullptr, symbol) != TRUE) {
+    if (GetLastError() == ERROR_INVALID_HANDLE && process == NULL) {
+      InitializeSymbolizerImpl();
+      if (SymFromAddr(process, reinterpret_cast<DWORD64>(pc), nullptr, symbol) != TRUE) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+    return false;
+  }
+  return true;
+}
+}
+
+void InitializeSymbolizer(const char*) {
+  if (process != nullptr) {
+    return;
+  }
+
+  alignas(SYMBOL_INFO) char buf[sizeof(SYMBOL_INFO) + MAX_SYM_NAME];
+  SYMBOL_INFO* symbol = reinterpret_cast<SYMBOL_INFO*>(buf);
+  symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+  symbol->MaxNameLen = MAX_SYM_NAME;
+
+  static_cast<void>(LookupAndInitialize(reinterpret_cast<const void*>(&InitializeSymbolizer), symbol));
+}
+
 bool Symbolize(const void* pc, char* out, int out_size) {
   if (out_size <= 0) {
     return false;
@@ -62,9 +92,11 @@ bool Symbolize(const void* pc, char* out, int out_size) {
   SYMBOL_INFO* symbol = reinterpret_cast<SYMBOL_INFO*>(buf);
   symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
   symbol->MaxNameLen = MAX_SYM_NAME;
-  if (!SymFromAddr(process, reinterpret_cast<DWORD64>(pc), nullptr, symbol)) {
+
+  if(!LookupAndInitialize(pc, symbol)) {
     return false;
   }
+
   const size_t out_size_t = static_cast<size_t>(out_size);
   strncpy(out, symbol->Name, out_size_t);
   if (out[out_size_t - 1] != '\0') {
