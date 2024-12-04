@@ -1,0 +1,68 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "include": ["common.json"],
+  "configurePresets": [
+    {
+      "inherits": "common",
+      "name": "win64-msvc-static",
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "ABSL_MSVC_STATIC_RUNTIME": "ON",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>",
+        "CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE": "x64",
+        "CMAKE_GENERATOR_PLATFORM": "x64"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "win64-msvc-static",
+      "configurePreset": "win64-msvc-static",
+      "configuration": "Release",
+      "targets": ["install"]
+    },
+    {
+      "name": "win64-msvc-static-debug",
+      "configurePreset": "win64-msvc-static",
+      "configuration": "Debug",
+      "targets": ["install"]
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "win64-msvc-static",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "win64-msvc-static"
+        },
+        {
+          "type": "build",
+          "name": "win64-msvc-static"
+        }
+      ]
+    },
+    {
+      "name": "win64-msvc-static-dev",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "win64-msvc-static"
+        },
+        {
+          "type": "build",
+          "name": "win64-msvc-static"
+        },
+        {
+          "type": "build",
+          "name": "win64-msvc-static-debug"
+        }
+      ]
+    }
+  ]
+}
