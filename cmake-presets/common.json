@@ -11,7 +11,7 @@
       "hidden": true,
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/build/${presetName}",
-      "installDir": "${sourceDir}/build/${presetName}/absl/install",
+      "installDir": "${sourceDir}/build/${presetName}/install/absl",
       "cacheVariables": {
         "CMAKE_DEBUG_POSTFIX": "d",
         "CMAKE_POSITION_INDEPENDENT_CODE": "ON",
